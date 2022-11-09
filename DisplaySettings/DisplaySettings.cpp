@@ -1826,6 +1826,7 @@ namespace WPEFramework {
 
             if(!capabilities)hdrCapabilities.Add("none");
             if(capabilities & dsHDRSTANDARD_HDR10)hdrCapabilities.Add("HDR10");
+            if(capabilities & dsHDRSTANDARD_HDR10PLUS)hdrCapabilities.Add("HDR10PLUS");
 	    if(capabilities & dsHDRSTANDARD_HLG)hdrCapabilities.Add("HLG");
             if(capabilities & dsHDRSTANDARD_DolbyVision)hdrCapabilities.Add("Dolby Vision");
             if(capabilities & dsHDRSTANDARD_TechnicolorPrime)hdrCapabilities.Add("Technicolor Prime");
@@ -1871,6 +1872,7 @@ namespace WPEFramework {
 
             if(!capabilities)hdrCapabilities.Add("none");
             if(capabilities & dsHDRSTANDARD_HDR10)hdrCapabilities.Add("HDR10");
+            if(capabilities & dsHDRSTANDARD_HDR10PLUS)hdrCapabilities.Add("HDR10PLUS");
 	    if(capabilities & dsHDRSTANDARD_HLG)hdrCapabilities.Add("HLG");
             if(capabilities & dsHDRSTANDARD_DolbyVision)hdrCapabilities.Add("Dolby Vision");
             if(capabilities & dsHDRSTANDARD_TechnicolorPrime)hdrCapabilities.Add("Technicolor Prime");
@@ -5552,6 +5554,7 @@ namespace WPEFramework {
 
             videoFormats.Add("SDR");
             if(capabilities & dsHDRSTANDARD_HDR10)videoFormats.Add("HDR10");
+            if(capabilities & dsHDRSTANDARD_HDR10PLUS)hdrCapabilities.Add("HDR10PLUS");
             if(capabilities & dsHDRSTANDARD_HLG)videoFormats.Add("HLG");
             if(capabilities & dsHDRSTANDARD_DolbyVision)videoFormats.Add("DV");
             if(capabilities & dsHDRSTANDARD_TechnicolorPrime)videoFormats.Add("Technicolor Prime");
@@ -5574,6 +5577,10 @@ namespace WPEFramework {
                 case dsHDRSTANDARD_HDR10:
                     LOGINFO("Video Format: HDR10\n");
                     strValue = "HDR10";
+                    break;
+                case dsHDRSTANDARD_HDR10PLUS:
+                    LOGINFO("Video Format: HDR10PLUS\n");
+                    strValue = "HDR10PLUS";
                     break;
                 case dsHDRSTANDARD_HLG:
                     LOGINFO("Video Format: HLG\n");
@@ -5602,6 +5609,8 @@ namespace WPEFramework {
                     mode = dsHDRSTANDARD_NONE;
             else if(strcmp(strFormat,"HDR10")== 0)
                     mode = dsHDRSTANDARD_HDR10;
+            else if(strcmp(strFormat,"HDR10PLUS")== 0)
+                    mode = dsHDRSTANDARD_HDR10PLUS;
             else if(strcmp(strFormat,"DV")== 0)
                     mode = dsHDRSTANDARD_DolbyVision;
             else if(strcmp(strFormat,"HLG")== 0)
