@@ -91,6 +91,9 @@ static bool isCecEnabled = false;
 static int  hdmiArcPortId = -1;
 static int retryPowerRequestCount = 0;
 static int  hdmiArcVolumeLevel = 0;
+static int  hdmiArcRequestedVolumeLevel = 0;
+static bool isSetVolumeThreadRunning = false;
+
 std::vector<int> sad_list;
 #ifdef USE_IARM
 namespace
@@ -2885,6 +2888,35 @@ namespace WPEFramework {
                 }
                 returnResponse(success);
         }
+	#define KEY_PRESSES_AT_ONCE 5
+        void DisplaySettings::setVolumeThread( int level)
+        {
+            LOGINFO("Entry  %s:  hdmiArcRequestedVolumeLevel: %d hdmiArcVolumeLevel:%d \n",__FUNCTION__,hdmiArcRequestedVolumeLevel,hdmiArcVolumeLevel);
+            isSetVolumeThreadRunning = true;
+	    do
+	    {
+                JsonObject hdmiCecSinkResult;
+                JsonObject params;
+		// 5 is logical address for audio system
+                params["logicalAddress"] = 5;
+		// key code for volume up and down key event
+                params["keyCode"] =(hdmiArcRequestedVolumeLevel> hdmiArcVolumeLevel)?0x41:0x42;
+		int loopCount  = abs(hdmiArcRequestedVolumeLevel-hdmiArcVolumeLevel);
+                loopCount=(loopCount>KEY_PRESSES_AT_ONCE)?KEY_PRESSES_AT_ONCE:loopCount;
+
+                for(int i =0; i< loopCount;i++  )
+	        {
+                    _instance->m_client->Invoke<JsonObject, JsonObject>(2000, "sendKeyPressEvent", params, hdmiCecSinkResult);
+                    if (!hdmiCecSinkResult["success"].Boolean()) {
+                        LOGERR("%s HdmiCecSink Plugin sendKeyPressEvent returned error\n",__FUNCTION__);
+                    }
+	        }
+		sleep(3);
+                LOGINFO("After iteration %s:  hdmiArcRequestedVolumeLevel: %d hdmiArcVolumeLevel:%d loopCount:%d \n",__FUNCTION__,hdmiArcRequestedVolumeLevel,hdmiArcVolumeLevel,loopCount);
+	    }while( abs(hdmiArcRequestedVolumeLevel-hdmiArcVolumeLevel) > KEY_PRESSES_AT_ONCE/2 );
+            isSetVolumeThreadRunning = false;
+            LOGINFO("Exit  %s:  hdmiArcRequestedVolumeLevel: %d hdmiArcVolumeLevel:%d \n",__FUNCTION__,hdmiArcRequestedVolumeLevel,hdmiArcVolumeLevel);
+        }
 
         uint32_t DisplaySettings::setVolumeLevel(const JsonObject& parameters, JsonObject& response)
         {
@@ -2904,16 +2936,28 @@ namespace WPEFramework {
                 string audioPort = parameters.HasLabel("audioPort") ? parameters["audioPort"].String() : "HDMI0";
                 try
                 {
-                        device::AudioOutputPort aPort = device::Host::getInstance().getAudioOutputPort(audioPort);
-                        aPort.setLevel(level);
-                        if(cache_volumelevel != (int)level)
+                    if( audioPort != "HDMI_ARC0")
+                    {
+                         device::AudioOutputPort aPort = device::Host::getInstance().getAudioOutputPort(audioPort);
+                         aPort.setLevel(level);
+                    }
+                    else
+                    {
+                        hdmiArcRequestedVolumeLevel  = (int)level;
+                        if(isSetVolumeThreadRunning == false)
                         {
-                            cache_volumelevel = (int)level;
-                            JsonObject params;
-                            params["volumeLevel"] = (int)level;
-                            sendNotify("volumeLevelChanged", params);
+                            std::thread t_setVolThread = std::thread(setVolumeThread,(int)level);
+                            t_setVolThread.detach();
                         }
-                        success= true;
+                    }
+                    if(cache_volumelevel != (int)level)
+                    {
+                        cache_volumelevel = (int)level;
+                        JsonObject params;
+                        params["volumeLevel"] = (int)level;
+                        sendNotify("volumeLevelChanged", params);
+                    }
+                    success= true;
                 }
                 catch (const device::Exception& err)
                 {
