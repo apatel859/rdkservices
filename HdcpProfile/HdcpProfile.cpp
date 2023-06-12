@@ -184,6 +184,8 @@ namespace WPEFramework
                 isConnected        = vPort.isDisplayConnected();
                 hdcpProtocol       = (dsHdcpProtocolVersion_t)vPort.getHDCPProtocol();
                 eHDCPEnabledStatus = vPort.getHDCPStatus();
+                LOGWARN("Amit eHDCPEnabledStatus  :%s:%d :\r\n", __FUNCTION__,eHDCPEnabledStatus);
+ 
                 if(isConnected)
                 {
                     isHDCPCompliant    = (eHDCPEnabledStatus == dsHDCP_STATUS_AUTHENTICATED);
@@ -206,7 +208,6 @@ namespace WPEFramework
             hdcpStatus["isHDCPCompliant"] = isHDCPCompliant;
             hdcpStatus["isHDCPEnabled"] = isHDCPEnabled;
             hdcpStatus["hdcpReason"] = eHDCPEnabledStatus;
-
             if(hdcpProtocol == dsHDCP_VERSION_2X)
             {
                 hdcpStatus["supportedHDCPVersion"] = "2.2";
@@ -215,6 +216,8 @@ namespace WPEFramework
             {
                 hdcpStatus["supportedHDCPVersion"] = "1.4";
             }
+            if(eHDCPEnabledStatus == dsHDCP_STATUS_AUTHENTICATED)
+            {
 
             if(hdcpReceiverProtocol == dsHDCP_VERSION_2X)
             {
@@ -232,6 +235,13 @@ namespace WPEFramework
             else
             {
                 hdcpStatus["currentHDCPVersion"] = "1.4";
+            }
+            }
+            else
+            {
+                LOGWARN("Amit  Authentication not complete :%s:  Protocol set as None :\r\n", __FUNCTION__);
+                hdcpStatus["receiverHDCPVersion"] = "None";
+                hdcpStatus["currentHDCPVersion"] = "None";
             }
 
             logHdcpStatus("Request", hdcpStatus);
