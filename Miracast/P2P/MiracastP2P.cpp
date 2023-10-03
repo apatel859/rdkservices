@@ -59,7 +59,9 @@ MiracastP2P::~MiracastP2P()
     MIRACASTLOG_TRACE("Entering..");
     if ( false == m_isIARMEnabled )
     {
+#if 0
         p2pUninit();
+#endif
     }
     MIRACASTLOG_TRACE("Exiting..");
 }
@@ -387,6 +389,7 @@ MiracastError MiracastP2P::executeCommand(std::string command, int interface, st
     MIRACASTLOG_INFO("Executing P2P command %s", command.c_str());
     if (m_isIARMEnabled)
     {
+#if 0
         IARM_Result_t retVal = IARM_RESULT_SUCCESS;
         IARM_Bus_WiFiSrvMgr_P2P_Param_t param;
         memset(&param, 0, sizeof(param));
@@ -403,6 +406,7 @@ MiracastError MiracastP2P::executeCommand(std::string command, int interface, st
             MIRACASTLOG_TRACE("Exiting...");
             return MIRACAST_FAIL;
         }
+#endif
     }
     else
     {
