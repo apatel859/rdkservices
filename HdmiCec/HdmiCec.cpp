@@ -87,7 +87,6 @@ static bool isDeviceActiveSource = false;
 
 #define CEC_SETTING_ENABLED "cecEnabled"
 
-static const timespec hundred_ms {.tv_sec = 0, .tv_nsec = int(1e8) };
 
 namespace WPEFramework
 {
@@ -493,7 +492,7 @@ namespace WPEFramework
             if(smConnection)
             {
 
-                LOGWARN("Start Update thread %p", smConnection );
+                LOGWARN("Amit dont start thread Start Update thread %p", smConnection );
                 m_updateThreadExit = false;
                 _instance->m_lockUpdate = PTHREAD_MUTEX_INITIALIZER;
                 _instance->m_condSigUpdate = PTHREAD_COND_INITIALIZER;
@@ -1055,12 +1054,14 @@ namespace WPEFramework
 			return;
 		if(!(_instance->smConnection))
 			return;
-		LOGINFO("Entering ThreadRun: _instance->m_pollThreadExit %d",_instance->m_pollThreadExit.load());
+		LOGINFO("Amit Entering ThreadRun: _instance->m_pollThreadExit %d",_instance->m_pollThreadExit.load());
 		int i = 0;
 		pthread_mutex_lock(&(_instance->m_lock));//pthread_cond_wait should be mutex protected. //pthread_cond_wait will unlock the mutex and perfoms wait for the condition.
+                timespec hundred_ms {.tv_sec = 0, .tv_nsec = 0};
+                struct timeval now {.tv_sec = 0 , .tv_usec = 0 };
 		while (!_instance->m_pollThreadExit) {
 			bool isActivateUpdateThread = false;
-			LOGINFO("Starting cec device polling");
+			LOGINFO("Amit Starting cec device polling");
 			for(i=0; i< LogicalAddress::UNREGISTERED; i++ ) {
 				bool isConnected = _instance->pingDeviceUpdateList(i);
 				if (isConnected){
@@ -1071,8 +1072,13 @@ namespace WPEFramework
 				//i any of devices is connected activate thread update check
 				pthread_cond_signal(&(_instance->m_condSigUpdate));
 			}
+                        gettimeofday( &now, NULL );
+                        hundred_ms.tv_sec  = now.tv_sec  ;
+                        hundred_ms.tv_nsec = (now.tv_usec * 1000) + int(1e8);
+                        LOGINFO("Amit threadRun before waiti sec: %ld ns:%ld  ",hundred_ms.tv_sec,hundred_ms.tv_nsec);
 			//Wait for mutex signal here to continue the worker thread again.
 			while (!_instance->m_pollThreadExit && ETIMEDOUT == pthread_cond_timedwait(&(_instance->m_condSig), &(_instance->m_lock), &hundred_ms));
+                        LOGINFO("Amit threadRun after wait ");
 
 		}
 		pthread_mutex_unlock(&(_instance->m_lock));
@@ -1085,12 +1091,19 @@ namespace WPEFramework
 			return;
 		if(!(_instance->smConnection))
 			return;
-		LOGINFO("Entering ThreadUpdate: _instance->m_updateThreadExit %d",_instance->m_updateThreadExit.load());
+		LOGINFO("Amit Entering ThreadUpdate: _instance->m_updateThreadExit %d",_instance->m_updateThreadExit.load());
 		int i = 0;
 		pthread_mutex_lock(&(_instance->m_lockUpdate));//pthread_cond_wait should be mutex protected. //pthread_cond_wait will unlock the mutex and perfoms wait for the condition.
+                timespec hundred_ms {.tv_sec = 0, .tv_nsec = 0};
+                struct timeval now {.tv_sec = 0 , .tv_usec = 0 };
 		while (!_instance->m_updateThreadExit) {
 			//Wait for mutex signal here to continue the worker thread again.
+                        gettimeofday( &now, NULL );
+                        hundred_ms.tv_sec  = now.tv_sec  ;
+                        hundred_ms.tv_nsec = (now.tv_usec * 1000) + int(1e8);
+                        LOGINFO("Amit threadUpdateCheck before wait sec: %ld ns:%ld  ",hundred_ms.tv_sec,hundred_ms.tv_nsec);
 			while (!_instance->m_updateThreadExit && ETIMEDOUT == pthread_cond_timedwait(&(_instance->m_condSigUpdate), &(_instance->m_lockUpdate), &hundred_ms));
+                        LOGINFO("Amit threadUpdateCheck after wait ");
 			if (_instance->m_updateThreadExit) break;
 			LOGINFO("Starting cec device update check");
 			for(i=0; ((i< LogicalAddress::UNREGISTERED)&&(!_instance->m_updateThreadExit)); i++ ) {
