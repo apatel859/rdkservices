@@ -305,6 +305,7 @@ public:
         dsATMOSCapability_t atmosCapability = dsAUDIO_ATMOS_NOTSUPPORTED;
         supported = false;
         string audioPort = "HDMI0"; //default to HDMI
+        LOGINFO(" SSV_ATMOS AtmosMetadata  entry \n ");
         try
         {
             /*  Check if the device has an HDMI_ARC out. If ARC is connected, then SPEAKERS and SPDIF are disabled.
@@ -337,6 +338,7 @@ public:
         }
 
         if(atmosCapability == dsAUDIO_ATMOS_ATMOSMETADATA) supported = true;
+        LOGINFO(" SSV_ATMOS AtmosMetadata  support: %d  return success \n ",supported);
         return (Core::ERROR_NONE);
     }
 
@@ -344,6 +346,7 @@ public:
     {
         /* For implementation details, please refer to Flow diagram attached in RDKTV-10066*/
 
+        LOGINFO(" SSV_ATMOS SoundMode  API called entry \n ");
         string audioPort;
         if (device::Host::getInstance().isHDMIOutPortPresent())
             audioPort = "HDMI0"; //this device has an HDMI out port. This is an STB device
@@ -379,6 +382,7 @@ public:
 
             /*When we reach here, we have determined the audio output port correctly. Now, check the sound mode on that port */
             device::AudioOutputPort aPort = device::Host::getInstance().getAudioOutputPort(audioPort);
+            LOGINFO(" SSV_ATMOS SoundMode   aPort.isConnected:%d  \n ",aPort.isConnected());
             if (aPort.isConnected())
             {
                 soundmode = aPort.getStereoMode();
@@ -400,6 +404,7 @@ public:
         {
             TRACE(Trace::Error, (_T("Exception during DeviceSetting library call. code = %d message = %s"), err.getCode(), err.what()));
         }
+        LOGINFO(" SSV_ATMOS SoundMode :%d   return success \n ",mode);
 
         return (Core::ERROR_NONE);
     }
