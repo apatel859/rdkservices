@@ -1393,6 +1393,8 @@ namespace WPEFramework
                 if (smConnection)  {
                     try
                     {
+                        LOGINFO("Sleeping 500 ms before sending image view ON \r\n");
+                        usleep(500000);
                         LOGINFO("Command: sending ImageViewOn TV \r\n");
                         smConnection->sendTo(LogicalAddress::TV, MessageEncoder().encode(ImageViewOn()));
                         usleep(10000);
