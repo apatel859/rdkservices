@@ -530,11 +530,12 @@ namespace WPEFramework
                 }
             }
 
-            LOGWARN("setLed ledIndicator: %s brightness: %d", parameters["ledIndicator"].String().c_str(), brightness);
+            LOGWARN("Amit setLed ledIndicator: %s brightness: %d", parameters["ledIndicator"].String().c_str(), brightness);
             try
             {
                 if (brightness == -1)
-                    brightness = device::FrontPanelIndicator::getInstance(ledIndicator.c_str()).getBrightness();
+                    brightness = device::FrontPanelIndicator::getInstance(ledIndicator.c_str()).getBrightness(true);
+                LOGWARN("Amit  after setLed ledIndicator: %s brightness: %d", parameters["ledIndicator"].String().c_str(), brightness);
 
                 device::FrontPanelIndicator::getInstance(ledIndicator.c_str()).setBrightness(brightness, false);
                 success = true;
