@@ -484,6 +484,7 @@ namespace WPEFramework {
 
     bool ConnectivityMonitor::doInitialConnectivityMonitoring(int timeoutInSeconds)
     {
+        LOGINFO("doInitialConnectivityMonitoring in entry  >>>>>> ");
         if(!isConnectivityMonitorEndpointSet())
         {
             LOGINFO("Connectivity monitor endpoints are not set !");
@@ -511,6 +512,7 @@ namespace WPEFramework {
             thread_ = std::thread(&ConnectivityMonitor::connectivityMonitorFunction, this);
             LOGINFO("Initial Connectivity Monitoring started with %d", timeout.load());
         }
+        LOGINFO("doInitialConnectivityMonitoring in exit <<<<< ");
 
         return true;
     }
@@ -522,6 +524,7 @@ namespace WPEFramework {
 
     bool ConnectivityMonitor::stopInitialConnectivityMonitoring()
     {
+        LOGINFO("stopInitialConnectivityMonitoring entry >>>>>");
         if(isContinuesMonitoringNeeded)
         {
             LOGWARN("Continuous Connectivity Monitor is running");
@@ -534,7 +537,7 @@ namespace WPEFramework {
         if (thread_.joinable())
             thread_.join();
 
-        LOGINFO("Initial Connectivity Monitor stopped");
+        LOGINFO("stopInitialConnectivityMonitoring Initial Connectivity Monitor stopped <<<<< ");
 
         return true;
     }

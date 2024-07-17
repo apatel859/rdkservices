@@ -1496,6 +1496,7 @@ typedef struct _IARM_BUS_NetSrvMgr_Iface_EventData_t {
             JsonObject params;
             string onInterface;
             params["interface"] = onInterface = m_netUtils.getInterfaceDescription(interface);
+            LOGWARN("Amit entry  :%s  : %d  ",__FUNCTION__,__LINE__);
             if (!ipv6Addr.empty())
             {
                 params["ip6Address"] = ipv6Addr;
@@ -1508,10 +1509,16 @@ typedef struct _IARM_BUS_NetSrvMgr_Iface_EventData_t {
             }
             params["status"] = string (acquired ? "ACQUIRED" : "LOST");
             sendNotify("onIPAddressStatusChanged", params);
+            LOGWARN("Amit  after sendNotify :%s  : %d  ",__FUNCTION__,__LINE__);
 
             connectivityMonitor.doInitialConnectivityMonitoring(30);
+            LOGWARN("Amit doInitialConnectivityMonitoring :%s  : %d  ",__FUNCTION__,__LINE__);
             if(!acquired) // lost the ip
+            {
+                LOGWARN("Amit stopInitialConnectivityMonitoring :%s  : %d  ",__FUNCTION__,__LINE__);
                 connectivityMonitor.stopInitialConnectivityMonitoring();
+            }
+            LOGWARN("Amit exit  :%s  : %d  ",__FUNCTION__,__LINE__);
         }
 
         void Network::onDefaultInterfaceChanged(string oldInterface, string newInterface)
@@ -1533,14 +1540,17 @@ typedef struct _IARM_BUS_NetSrvMgr_Iface_EventData_t {
 
         void Network::eventHandler(const char *owner, IARM_EventId_t eventId, void *data, size_t len)
         {
+            LOGWARN("Amit :%s  entry : %d  ",__FUNCTION__,__LINE__);
             if (Network::_instance)
                 Network::_instance->iarmEventHandler(owner, eventId, data, len);
             else
                 LOGWARN("WARNING - cannot handle IARM events without a Network plugin instance!");
+            LOGWARN("Amit :%s  exit : %d  ",__FUNCTION__,__LINE__);
         }
 
         void Network::iarmEventHandler(const char *owner, IARM_EventId_t eventId, void *data, size_t len)
         {
+            LOGWARN("Amit :%s  entry : %d  event id: %d   ",__FUNCTION__,__LINE__,(int)eventId);
             if (strcmp(owner, IARM_BUS_NM_SRV_MGR_NAME) != 0)
             {
                 LOGERR("ERROR - unexpected event: owner %s, eventId: %d, data: %p, size: %d.", owner, (int)eventId, data, (int)len);
@@ -1576,24 +1586,39 @@ typedef struct _IARM_BUS_NetSrvMgr_Iface_EventData_t {
             }
             case IARM_BUS_NETWORK_MANAGER_EVENT_INTERFACE_IPADDRESS:
             {
+                LOGWARN("Amit IARM_BUS_NETWORK_MANAGER_EVENT_INTERFACE_IPADDRESS :%s  : %d  ",__FUNCTION__,__LINE__);
                 IARM_BUS_NetSrvMgr_Iface_EventInterfaceIPAddress_t *e = (IARM_BUS_NetSrvMgr_Iface_EventInterfaceIPAddress_t*) data;
 #ifdef NET_DEFINED_INTERFACES_ONLY
+                LOGWARN("Amit :%s  getInterfaceDescription : %d  ",__FUNCTION__,__LINE__);
                 if (m_netUtils.getInterfaceDescription(e->interface) == "")
+                {
+                    LOGWARN("Amit  break :%s  : %d  ",__FUNCTION__,__LINE__);
                     break;
+                }
 #endif
                 if (e->is_ipv6)
                 {
+                    LOGWARN("Amit :%s  exit : %d  ",__FUNCTION__,__LINE__);
 #ifdef NET_NO_LINK_LOCAL_ANNOUNCE
                     if (!m_netUtils.isIPV6LinkLocal(e->ip_address))
 #endif
+                    {  
+                        LOGWARN("Amit onInterfaceIPAddressChanged :%s  : %d  ",__FUNCTION__,__LINE__);
                         onInterfaceIPAddressChanged(e->interface, e->ip_address, "", e->acquired);
+                        LOGWARN("Amit onInterfaceIPAddressChanged after  :%s : %d  ",__FUNCTION__,__LINE__);
+                    }
                 }
                 else
                 {
+                        LOGWARN("Amit  else if is_ipv6 :%s  : %d  ",__FUNCTION__,__LINE__);
 #ifdef NET_NO_LINK_LOCAL_ANNOUNCE
                     if (!m_netUtils.isIPV4LinkLocal(e->ip_address))
 #endif
+                    {
+                        LOGWARN("Amit  xxx onInterfaceIPAddressChanged :%s  : %d  ",__FUNCTION__,__LINE__);
                         onInterfaceIPAddressChanged(e->interface, "", e->ip_address, e->acquired);
+                        LOGWARN("Amit   yyy onInterfaceIPAddressChanged :%s  : %d  ",__FUNCTION__,__LINE__);
+                    }
                 }
                 break;
             }
@@ -1604,6 +1629,7 @@ typedef struct _IARM_BUS_NetSrvMgr_Iface_EventData_t {
                 break;
             }
             }
+            LOGWARN("Amit :%s  exit : %d  ",__FUNCTION__,__LINE__);
         }
 
         /*
