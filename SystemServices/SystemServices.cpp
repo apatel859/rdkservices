@@ -3626,8 +3626,14 @@ namespace WPEFramework {
                 if (res == IARM_RESULT_SUCCESS) {
                     if (param.curState == IARM_BUS_PWRMGR_POWERSTATE_ON)
                         currentState = "ON";
-                    else if ((param.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY) || (param.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_LIGHT_SLEEP) || (param.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_DEEP_SLEEP))
+                    else if (param.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY)
                         currentState = "STANDBY";
+                    else if (param.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_LIGHT_SLEEP)
+                        currentState = "LIGHT_SLEEP";
+                    else if (param.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_DEEP_SLEEP)
+                        currentState = "DEEP_SLEEP";
+                    else if (param.curState == IARM_BUS_PWRMGR_POWERSTATE_OFF)
+                        currentState = "OFF";   
                 }
                 
                 powerState = currentState;
@@ -3676,8 +3682,10 @@ namespace WPEFramework {
 					LOGWARN("SystemServices::_instance is NULL.\n");
 				}
 				if (convert("DEEP_SLEEP", sleepMode)) {
+                                        LOGINFO(" SystemServices::setDevicePowerState sleepmode : %s\n", sleepMode.c_str());
 					retVal = setPowerState(sleepMode);
 				} else {
+                                        LOGINFO(" xxx SystemServices::setDevicePowerState state: %s\n", state.c_str());
 					retVal = setPowerState(state);
 				}
 				outfile.open(STANDBY_REASON_FILE, ios::out);
@@ -3689,6 +3697,7 @@ namespace WPEFramework {
 					populateResponseWithError(SysSrv_FileAccessFailed, response);
 				}
 			} else {
+                                LOGINFO(" Not standby case SystemServices::setDevicePowerState state: %s\n", state.c_str());
 				retVal = setPowerState(state);
 			}
             m_current_state=state; /* save the old state */
@@ -4166,32 +4175,33 @@ namespace WPEFramework {
                     {
                         IARM_Bus_PWRMgr_EventData_t *eventData = (IARM_Bus_PWRMgr_EventData_t *)data;
 			std::string curState,newState = "";
-
+                        LOGWARN("Amit  PowerStateChange curSstate: %d",eventData->data.state.curState);
 			if(eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_ON) {
 				curState = "ON";
-            } else if (eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_OFF) {
-                curState = "OFF";
-			} else if ((eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY)||
-				   (eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_LIGHT_SLEEP)) {
-				curState = "LIGHT_SLEEP";
+                        } else if (eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_OFF) {
+                                curState = "OFF";
+                        } else if (eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY){
+                                curState = "STANDBY";
+                        } else if (eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_LIGHT_SLEEP) {
+                                curState = "LIGHT_SLEEP";
 			} else if (eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_DEEP_SLEEP) {
 				curState = "DEEP_SLEEP";
-			} else if (eventData->data.state.curState == IARM_BUS_PWRMGR_POWERSTATE_OFF) {
-				curState = "OFF";
 			}
+                        LOGWARN("Amit  PowerStateChange newState: %d",eventData->data.state.newState);
 
 			if(eventData->data.state.newState == IARM_BUS_PWRMGR_POWERSTATE_ON) {
 				newState = "ON";
-            } else if(eventData->data.state.newState == IARM_BUS_PWRMGR_POWERSTATE_OFF) {
-                newState = "OFF";
-			} else if((eventData->data.state.newState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY)||
-				  (eventData->data.state.newState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_LIGHT_SLEEP)) {
+                        } else if(eventData->data.state.newState == IARM_BUS_PWRMGR_POWERSTATE_OFF) {
+                                newState = "OFF";
+                        } else if (eventData->data.state.newState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY){
+                                newState = "STANDBY";
+                        } else if (eventData->data.state.newState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_LIGHT_SLEEP) {
                                 newState = "LIGHT_SLEEP";
 			} else if(eventData->data.state.newState == IARM_BUS_PWRMGR_POWERSTATE_STANDBY_DEEP_SLEEP) {
                                 newState = "DEEP_SLEEP";
 			}
-                        LOGWARN("IARM Event triggered for PowerStateChange.\
-                                Old State %s, New State: %s\n",
+                        LOGWARN("Amit IARM Event triggered for PowerStateChange.\
+                                cur State %s, New State: %s\n",
                                 curState.c_str() , newState.c_str());
                         if (SystemServices::_instance) {
                             SystemServices::_instance->onSystemPowerStateChanged(curState, newState);
