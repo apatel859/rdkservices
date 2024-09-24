@@ -134,16 +134,25 @@ namespace
         }
         JsonArray availableColors;
         const device::List <device::FrontPanelIndicator::Color> colorsList = indicator.getSupportedColors();
+        LOGWARN("Amit colorsList.size %d", colorsList.size());
         for (uint j = 0; j < colorsList.size(); j++)
         {
+            LOGWARN("Amit colors at :%d  name: %s",j, colorsList.at(j).getName().c_str());
             availableColors.Add(colorsList.at(j).getName());
         }
+
+        LOGWARN("Amit availableColors.Length : %d", availableColors.Length());
         if (availableColors.Length() > 0)
         {
+            string json;
+            availableColors.ToString(json);
+            LOGWARN("Amit json to str:  %s",json.c_str());
             indicatorInfo["colors"] = availableColors;
         }
-
         indicatorInfo["colorMode"] = indicator.getColorMode();
+        string strjson;
+        indicatorInfo.ToString(strjson);
+        LOGWARN("Amit response ret to str:  %s",istrjson.c_str());
         return indicatorInfo;
     }
 }
