@@ -140,10 +140,15 @@ namespace
         }
         if (availableColors.Length() > 0)
         {
+            string json;
+            availableColors.ToString(json);
+            LOGWARN("Amit json to str:  %s",json.c_str());
             indicatorInfo["colors"] = availableColors;
         }
-
         indicatorInfo["colorMode"] = indicator.getColorMode();
+        string strjson;
+        indicatorInfo.ToString(strjson);
+        LOGWARN("Amit response ret to str:  %s",strjson.c_str());
         return indicatorInfo;
     }
 }
@@ -625,6 +630,7 @@ namespace WPEFramework
         {
             JsonObject returnResult;
             JsonObject indicatorInfo;
+            JsonObject strjsonobj;
             string IndicatorNameIarm, MappedName;
 
             device::List <device::FrontPanelIndicator> fpIndicators = device::FrontPanelConfig::getInstance().getIndicators();
@@ -632,12 +638,32 @@ namespace WPEFramework
             {
                 IndicatorNameIarm = fpIndicators.at(i).getName();
                 MappedName = iarm2svc(IndicatorNameIarm);
+                LOGWARN("----------XXXXX-------- Amit in loop i:%d  IndicatorNameIarm %s MappedName :%s ",i,IndicatorNameIarm.c_str(),MappedName.c_str()); 
+                indicatorInfo = getFrontPanelIndicatorInfo(fpIndicators.at(i));
+                string json,strjson;
                 if (MappedName != IndicatorNameIarm)
                 {
-                    indicatorInfo = getFrontPanelIndicatorInfo(fpIndicators.at(i));
                     returnResult[MappedName.c_str()] = indicatorInfo;
+                    //strjsonobj = returnResult[MappedName.c_str()];
+                    indicatorInfo.ToString(strjson); 
                 }
+                else
+                {
+                    returnResult[IndicatorNameIarm.c_str()] = indicatorInfo;
+                    //strjsonobj = returnResult[IndicatorNameIarm.c_str()];
+                    indicatorInfo.ToString(strjson); 
+                }
+                returnResult.ToString(json);
+
+                LOGWARN("------- Amit returnResult:  "); 
+                LOGWARN("Amit in loop returnResult:  %s",json.c_str());
+                LOGWARN("-------  Amit strjsonobj:  "); 
+                LOGWARN("Amit value  strjsonobj:  %s",strjson.c_str()); 
             }
+            string json;
+            returnResult.ToString(json);
+            LOGWARN("-------  Amit final result:  ");
+            LOGWARN("Amit finally iteration:  %s",json.c_str());
 
 #ifdef CLOCK_BRIGHTNESS_ENABLED
             try
