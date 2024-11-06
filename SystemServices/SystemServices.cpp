@@ -2168,10 +2168,13 @@ namespace WPEFramework {
 	    DeepSleep_WakeupReason_t param;
 	    std::string wakeupReason = "WAKEUP_REASON_UNKNOWN";
 
+            LOGWARN("Amit entry WakeupReason : %s\n", wakeupReason.c_str());
+
 	    IARM_Result_t res = IARM_Bus_Call((m_isPwrMgr2RFCEnabled)? IARM_BUS_PWRMGR_NAME : IARM_BUS_DEEPSLEEPMGR_NAME,
 			IARM_BUS_DEEPSLEEPMGR_API_GetLastWakeupReason, (void *)&param,
 			sizeof(param));
 
+            LOGWARN("Amit return WakeupReason param:%d result:%d \n", param,res);
             if (IARM_RESULT_SUCCESS == res)
             {
                 status = true;
