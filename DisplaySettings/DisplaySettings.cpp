@@ -3072,12 +3072,17 @@ namespace WPEFramework {
                 }
 
                 bool success = true;
+		LOGWARN("DisplaySettings::Amit level :%f ",level);
                 string audioPort = parameters.HasLabel("audioPort") ? parameters["audioPort"].String() : "HDMI0";
                 try
                 {
+		        LOGWARN("DisplaySettings::Amit level :%f 111 ",level);
                         device::AudioOutputPort aPort = device::Host::getInstance().getAudioOutputPort(audioPort);
+		        LOGWARN("DisplaySettings::Amit level :%f 222",level);
 			current_volumelevel = (int)aPort.getLevel();
+		        LOGWARN("DisplaySettings::Amit level :%f 333 ",level);
                         aPort.setLevel(level);
+		        LOGWARN("DisplaySettings::Amit level :%f 444 ",level);
                         if(current_volumelevel != (int)level)
                         {
                             JsonObject params;
