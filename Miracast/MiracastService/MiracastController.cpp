@@ -1358,10 +1358,15 @@ void MiracastController::set_enable(bool is_enabled)
     isMiracastRFCEnabled = true;
 #endif //RFC_ENABLED
 
+    std::string manufacturerName;
+    std::ifstream manufacturerFile("/tmp/.manufacturer");
+    std::getline(manufacturerFile, manufacturerName);
+    MIRACASTLOG_INFO("manufacturerName: :%s isMiracastRFCEnabled:%d  ",manufacturerName.c_str(),isMiracastRFCEnabled);
 
-    if(!isMiracastRFCEnabled)
+
+    if((!isMiracastRFCEnabled) || (manufacturerName == "Westinghouse"))
     {
-        MIRACASTLOG_INFO("----------MIRACAST RFC Disabled---------- ");
+        MIRACASTLOG_INFO("----------MIRACAST RFC Disabled or Miracast not supported model name ---------- ");
         return;
     }
 
